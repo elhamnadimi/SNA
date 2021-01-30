@@ -88,5 +88,21 @@ as.sociomatrix(netval1)
 
 
 
-
 #Creating a Network Object in igraph and
+library(igraph)
+inet1 <- graph.adjacency(netmat1)
+class(inet1)
+summary(inet1)
+str(inet1)
+
+
+inet2 <- graph.edgelist(netmat2)
+summary(inet2)
+V(inet2)$name <- c("A","B","C","D","E")
+E(inet2)$val <- c(1:6)
+summary(inet2)
+str(inet2)
+
+
+
+Going Back and Forth Between statnet and igraph
