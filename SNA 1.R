@@ -89,4 +89,4 @@ as.sociomatrix(netval1)
 
 
 
-#Creating a Network Object in igraph
+#Creating a Network Object in igraph and
