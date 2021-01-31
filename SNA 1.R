@@ -419,7 +419,152 @@ legend("bottomleft",legend=c("BM","CT","OA","SB","TL"),
 
        
 #Description and Analysis
+#Three Common Measures of Centrality
+data(DHHS)
+DHHS
+#iDHHS<-asIgraph(DHHS)
+df.prom <- data.frame(deg = degree(DHHS),
+                      cls = closeness(DHHS),
+                      btw = betweenness(DHHS),
+                      evc = evcent(DHHS),
+                      inf = infocent(DHHS), 
+                      flb = flowbet(DHHS))
 
 
-  
+dum1 <- rbind(c(1,2),c(1,3),c(1,4),c(1,5))
+star_net <- network(dum1,directed=FALSE)
+dum2 <- rbind(c(1,2),c(2,3),c(3,4),c(4,5),c(5,1))
+circle_net <- network(dum2,directed=FALSE)
+par(mar=c(4,4,.1,.1))
+my_pal <- brewer.pal(5,"Set2")
 
+gplot(star_net,usearrows=FALSE,displaylabels=FALSE,
+      vertex.cex=2,
+      vertex.col=my_pal[1], edge.lwd=0,edge.col="grey50",xlab="Star Graph")
+
+gplot(circle_net,usearrows=FALSE,displaylabels=FALSE, vertex.cex=2,
+      vertex.col=my_pal[3], edge.lwd=0,edge.col="grey50",xlab="Circle Graph")
+
+closeness(asIgraph(circle_net))
+
+
+
+
+data(Bali)
+str(degree(asIgraph(Bali)))
+summary(degree(asIgraph(Bali)))
+
+
+data(Bali)
+my_pal <- brewer.pal(5,"Set2")  
+rolecat <- Bali %v% "role"
+gplot(Bali,usearrows=FALSE,displaylabels=TRUE,
+      vertex.col=my_pal[as.factor(rolecat)], edge.lwd=0,edge.col="grey25")
+legend("topright",legend=c("BM","CT","OA","SB", "TL"),col=my_pal,pch=19,pt.cex=2)
+
+
+#Subgroup
+#A clique is a maximally complete subgraph; that is,
+#it is a subset of nodes that have all possible ties among them.
+library(igraph)
+clqexmp <- graph.formula(A:B:C:D--A:B:C:D,D-E,E-F-G-E)
+clqexmp
+clique.number(clqexmp)
+cliques(clqexmp, min=3)
+maximal.cliques(clqexmp,min=3)
+largest.cliques(clqexmp)
+
+
+#Coreness
+
+Vname <- get.vertex.attribute(iDHHS,name='vertex.names', index=V(iDHHS))
+Vname
+V(iDHHS)$name <- Vname 
+coreness <- graph.coreness(iDHHS)
+V(iDHHS)$color <- coreness + 1
+op <- par(mar = rep(0, 4))
+plot(iDHHS,vertex.label.cex=0.6) 
+par(op)
+
+
+coreness <- graph.coreness(iDHHS)
+table(coreness)
+
+maxCoreness <- max(coreness) 
+maxCoreness
+
+colors <- rainbow(maxCoreness) 
+op <- par(mar = rep(0, 4)) 
+plot(iDHHS,vertex.label=coreness,vertex.color=colors[coreness]) 
+par(op)
+V(iDHHS)$name <- coreness
+V(iDHHS)$color <- colors[coreness]
+
+
+
+V(iDHHS)$name <- coreness 
+V(iDHHS)$color <- colors[coreness]
+iDHHS1_6 <- iDHHS
+iDHHS2_6 <- induced.subgraph(iDHHS,vids=which(coreness > 1))
+iDHHS3_6 <- induced.subgraph(iDHHS,
+                             vids=which(coreness > 2))
+iDHHS4_6 <- induced.subgraph(iDHHS,
+                             vids=which(coreness > 3))
+
+iDHHS5_6 <- induced.subgraph(iDHHS,
+                             vids=which(coreness > 4))
+iDHHS6_6 <- induced.subgraph(iDHHS,
+                             vids=which(coreness > 5))
+lay <- layout.fruchterman.reingold(iDHHS)
+op <- par(mfrow=c(3,2),mar = c(3,0,2,0))
+plot(iDHHS1_6,layout=lay,main="All k-cores")
+plot(iDHHS2_6,layout=lay[which(coreness > 1),],
+     main="k-cores 2-6")
+
+plot(iDHHS3_6,layout=lay[which(coreness > 2),],
+     main="k-cores 3-6")
+
+plot(iDHHS4_6,layout=lay[which(coreness > 3),],
+     main="k-cores 4-6")
+
+plot(iDHHS5_6,layout=lay[which(coreness > 4),],
+     main="k-cores 5-6")
+
+plot(iDHHS6_6,layout=lay[which(coreness > 5),],
+     main="k-cores 6-6")
+par(op)
+
+
+#Community Detection
+
+
+#Modularity
+
+g1 <- graph.formula(A-B-C-A,D-E-F-D,G-H-I-G,A-D-G-A) 
+g1
+V(g1)$grp_good <- c(1,1,1,2,2,2,3,3,3) 
+V(g1)$grp_bad <- c(1,2,3,2,3,1,3,1,2)
+g1
+op <- par(mfrow=c(1,2))
+plot(g1,vertex.color=(V(g1)$grp_good),vertex.size=30,main="Good Grouping")
+plot(g1,vertex.color=(V(g1)$grp_bad),vertex.size=30,main="Bad Grouping")
+par(op)
+modularity(g1,V(g1)$grp_good)
+modularity(g1,V(g1)$grp_bad)
+
+
+
+library(intergraph)
+data(DHHS)
+iDHHS <- asIgraph(DHHS)
+iDHHS
+table(V(iDHHS)$agency)
+
+
+
+
+
+
+
+
+    
