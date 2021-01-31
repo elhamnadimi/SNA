@@ -1,5 +1,6 @@
 install_github("DougLuke/UserNetR")
 install.packages("UserNetR")
+install.packages("intergraph")
 #install.packages("devtools")
 
 
@@ -105,4 +106,154 @@ str(inet2)
 
 
 
-Going Back and Forth Between statnet and igraph
+#Going Back and Forth Between statnet and igraph
+library(intergraph)
+class(net1)
+net1igraph <- asIgraph(net1)
+class(net1igraph)
+str(net1igraph)
+
+
+#Importing Network Data
+
+
+detach("package:igraph", unload=TRUE)
+library(statnet)
+netmat3 <- rbind(c("A","B"), c("A","C"), c("B","C"),c("B","D"), c("C","B"), c("E","C"))
+net.df <- data.frame(netmat3)
+net.df
+
+write.csv(net.df, file = "MyData.csv", row.names = FALSE)
+net.edge <- read.csv(file="MyData.csv")
+net_import <- network(net.edge,matrix.type="edgelist")
+summary(net_import)
+gden(net_import)
+
+
+
+
+#Filtering Based on Node Values
+n1F <- get.inducedSubgraph(net1,
+                           which(net1 %v% "gender" == "F"))
+
+
+n1F
+gplot(n1F,displaylabels=TRUE)
+deg <- net1 %v% "alldeg"
+n2 <- net1 %s% which(deg > 1)
+gplot(n2,displaylabels=TRUE)
+
+#Removing Isolates
+
+data(ICTS_G10)
+gden(ICTS_G10)
+length(isolates(ICTS_G10))
+
+n3 <- ICTS_G10
+delete.vertices(n3,isolates(n3))
+gden(n3)
+length(isolates(n3))
+
+#Filtering Based on Edge Values
+data(DHHS)
+d <- DHHS
+d
+gden(d)
+op <- par(mar = rep(0, 4))
+gplot(d,gmode="graph",edge.lwd=d %e% 'collab',
+      edge.col="grey50",vertex.col="lightblue",
+      vertex.cex=1.0,vertex.sides=10) 
+par(op)
+
+
+as.sociomatrix(d)[1:6,1:6]
+#First, we examine the network ties for the first six members of the network.
+#we determine where the collaboration 
+#values are stored, and then use that
+#to view the tie values for the same set of six actors.
+
+list.edge.attributes(d)
+as.sociomatrix(d,attrname="collab")[1:6,1:6]
+
+#The summary of the network object tells us 
+#that there are 447 ties in the DHHS network.
+#We can easily see the distribution of tie values.
+table(d %e%"collab")
+d.val <- as.sociomatrix(d,attrname="collab") 
+d.val[d.val < 3] <- 0
+d.filt <- as.network(d.val, directed=FALSE,
+                     matrix.type="a",ignore.eval=FALSE, names.eval="collab")
+summary(d.filt,print.adj=FALSE)
+
+gden(d.filt)
+op <- par(mar = rep(0, 4)) 
+gplot(d.filt,gmode="graph",displaylabels=TRUE,
+                                 vertex.col="lightblue",vertex.cex=1.3, label.cex=0.4,label.pos=5, displayisolates=FALSE)
+par(op)
+
+
+
+
+op <- par(mar = rep(0, 4))
+d.val <- as.sociomatrix(d,attrname="collab") 
+gplot(d.val,gmode="graph",thresh=2,
+      vertex.col="lightblue",vertex.cex=1.3, label.cex=0.4,label.pos=5, displayisolates=FALSE)
+par(op)
+
+
+
+# Transforming a Directed Network to a Non-directed Network
+#R makes it easy to transform a directed network into a non-directed network.
+#To do this you can use the symmetrize() function
+net1mat <- symmetrize(net1,rule="weak")
+net1mat
+
+net1symm <- network(net1mat,matrix.type="adjacency")
+network.vertex.names(net1symm) <- c("A","B","C","D","E")
+summary(net1symm)
+
+
+
+
+
+#Visualization
+data(Moreno)
+op <- par(mar = rep(0, 4),mfrow=c(1,2)) 
+plot(Moreno,mode="circle",vertex.cex=1.5)
+plot(Moreno,mode="fruchtermanreingold",vertex.cex=1.5)
+par(op)
+
+
+op <- par(mar = c(0,0,4,0),mfrow=c(1,2))
+gplot(Moreno,gmode="graph",mode="random",vertex.cex=1.5,main="Random layout") 
+gplot(Moreno,gmode="graph",mode="fruchtermanreingold",
+                                                                                          vertex.cex=1.5,main="Fruchterman-Reingold") par(op)
+
+
+op <- par(mar=c(0,0,4,0),mfrow=c(2,3))
+gplot(Bali,gmode="graph",edge.col="grey75",vertex.cex=1.5,mode='circle',main="circle") 
+gplot(Bali,gmode="graph",edge.col="grey75",vertex.cex=1.5,mode='eigen',main="eigen") 
+gplot(Bali,gmode="graph",edge.col="grey75",vertex.cex=1.5,mode='random',main="random")
+gplot(Bali,gmode="graph",edge.col="grey75",vertex.cex=1.5,mode='spring',main="spring")
+gplot(Bali,gmode="graph",edge.col="grey75",vertex.cex=1.5,mode='fruchtermanreingold',main='fruchtermanreingold')
+gplot(Bali,gmode="graph",edge.col="grey75",vertex.cex=1.5,mode='kamadakawai',main='kamadakawai')
+par(op)
+
+
+
+
+mycoords1 <- gplot(Bali,gmode="graph", vertex.cex=1.5)
+
+mycoords2 <- mycoords1
+
+mycoords2[,2] <- mycoords1[,2]*1.5
+
+mycoords1
+op <- par(mar=c(4,3,4,3),mfrow=c(1,2))
+gplot(Bali,gmode="graph",coord=mycoords1,vertex.cex=1.5,suppress.axes = FALSE, ylim=c(min(mycoords2[,2])-1,max(mycoords2[,2])+1), main="Original coordinates")
+gplot(Bali,gmode="graph",coord=mycoords2, vertex.cex=1.5,suppress.axes = FALSE, ylim=c(min(mycoords2[,2])-1,max(mycoords2[,2])+1), main="Modified coordinates")
+
+
+
+
+#Network Graph Layouts Using igraph
