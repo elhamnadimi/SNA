@@ -257,3 +257,126 @@ gplot(Bali,gmode="graph",coord=mycoords2, vertex.cex=1.5,suppress.axes = FALSE, 
 
 
 #Network Graph Layouts Using igraph
+
+detach(package:statnet)
+
+library(igraph)
+library(intergraph)
+iBali <- asIgraph(Bali)
+
+op <- par(mar=c(0,0,3,0),mfrow=c(1,3))
+plot(iBali,layout=layout_in_circle,
+     main="Circle")
+plot(iBali,layout=layout_randomly,
+     main="Random")
+plot(iBali,layout=layout_randomly,
+     main="Kamada-Kawai")
+par(op)
+
+
+
+
+
+#Effective Network Graphic Design
+
+data(Bali)
+gplot(Bali,vertex.col="slateblue2",gmode="graph")
+col2rgb('slateblue2') 
+gplot(Bali,vertex.col=rgb(122,103,238,maxColorValue=255),gmode="graph")
+gplot(Bali,vertex.col="#7A67EE",gmode="graph")
+summary(Bali)
+
+#ff <- rgraph(5,tprob=0.5,mode="graph")
+#ff
+
+ndum <- rgraph(300,tprob=0.025,mode="graph")
+ndum
+op <- par(mar = c(0,0,2,0),mfrow=c(1,2))
+gplot(ndum,gmode="graph",vertex.cex=1.5,
+      vertex.col=rgb(0,0,139,maxColorValue=255),
+      edge.col="grey80",edge.lwd=0.5, main="Fully opaque")
+gplot(ndum,gmode="graph",vertex.cex=2,
+      vertex.col=rgb(0,0,139,alpha=80,maxColorValue=255),
+      edge.col="grey80",edge.lwd=0.5,main="Partly transparent")
+
+
+rolelab <- get.vertex.attribute(iBali,"role")
+Bali
+op <- par(mar=c(0,0,0,0)) 
+plot(Bali,usearrows=FALSE,vertex.cex=1.5,
+     label=rolelab,displaylabels=T,vertex.col="role") 
+par(op)
+palette()
+
+
+
+
+library(RColorBrewer)
+display.brewer.pal(5, "Dark2")
+my_pal <- brewer.pal(5,"Dark2")
+rolecat <- as.factor(get.vertex.attribute(iBali,"role")) 
+plot(iBali,vertex.cex=1.5,label=rolelab,
+     displaylabels=T,vertex.col=my_pal[rolecat])
+
+
+
+
+op <- par(mar=c(0,0,0,0))
+sidenum <- 3:7 
+plot(Bali,usearrows=FALSE,vertex.cex=4,
+                    displaylabels=F,vertex.sides=sidenum[rolecat])
+par(op)
+
+
+
+op <- par(mar = c(0,0,2,0),mfrow=c(1,3))
+plot(Bali,vertex.cex=0.5,main="Too small")
+plot(Bali,vertex.cex=2,main="Just right")
+plot(Bali,vertex.cex=6,main="Too large") 
+par(op)
+
+deg <- degree(iBali) 
+deg
+
+cls <- closeness(iBali)
+cls
+
+bet <- betweenness(iBali)
+bet
+
+
+
+op <- par(mar = c(0,0,2,1),mfrow=c(1,2)) 
+
+plot(Bali,usearrows=T,vertex.cex=deg,main="Raw") 
+plot(Bali,usearrows=FALSE,vertex.cex=log(deg),main="Adjusted")
+par(op)
+
+
+op <- par(mar = c(0,0,2,1),mfrow=c(1,2)) 
+plot(Bali,usearrows=T,vertex.cex=cls,main="Raw")
+plot(Bali,usearrows=FALSE,vertex.cex=4*cls,main="Adjusted")
+par(op)
+
+
+op <- par(mar = c(0,0,2,1),mfrow=c(1,2))
+plot(Bali,usearrows=T,vertex.cex=bet,main="Raw") 
+plot(Bali,usearrows=FALSE,vertex.cex=sqrt(bet+1),main="Adjusted") 
+
+
+
+
+rescale <- function(nchar,low,high) {
+  min_d <- min(nchar)
+  max_d <- max(nchar)
+  rscl <- ((high-low)*(nchar-min_d))/(max_d-min_d)+low
+  rscl}
+plot(Bali,vertex.cex=rescale(deg,1,6),
+     main="Adjusted node sizes with rescale function.")
+
+
+
+#Node Label
+
+  
+
