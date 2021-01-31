@@ -378,5 +378,48 @@ plot(Bali,vertex.cex=rescale(deg,1,6),
 
 #Node Label
 
+get.vertex.attribute(iBali,"vertex.names")
+op <- par(mar = c(0,0,0,0)) 
+plot(Bali,displaylabels=TRUE,label.cex=0.8,
+     pad=0.4,label.col="darkblue") 
+par(op)
+
+
+
+rolelab <- get.vertex.attribute(iBali,"role")
+rolelab
+plot(Bali,usearrows=FALSE,label=rolelab,displaylabels=T,label.col="darkblue")
+
+#Edge Width
+op <- par(mar = c(0,0,0,0))
+IClevel <- Bali %e% "IC" 
+IClevel
+plot(Bali,vertex.cex=1.5,edge.lwd=1.5*IClevel) 
+par(op)
+
+
+#Edge Color
+n_edge <- network.edgecount(Bali)
+n_edge
+edge_cat <- sample(1:3,n_edge,replace=T)
+linecol_pal <- c("blue","red","green")
+
+plot(Bali,vertex.cex=1.5,vertex.col="grey25",
+     edge.col=linecol_pal[edge_cat],edge.lwd=2)
+
+
+
+#Legends
+my_pal <- brewer.pal(5,"Dark2")
+rolecat <- as.factor(get.vertex.attribute(iBali,"role")) 
+plot(Bali,vertex.cex=rescale(deg,1,5),
+     vertex.col=my_pal[rolecat])
+legend("bottomleft",legend=c("BM","CT","OA","SB","TL"),
+       col=my_pal,pch=19,pt.cex=1.5,bty="n", title="Terrorist Role")
+
+       
+#Description and Analysis
+
+
   
 
