@@ -560,11 +560,25 @@ iDHHS <- asIgraph(DHHS)
 iDHHS
 table(V(iDHHS)$agency)
 
+V(iDHHS)[1:10]$agency
+
+modularity(iDHHS,(V(iDHHS)$agency+1))
 
 
 
+data(Moreno)
+iMoreno <- asIgraph(Moreno)
+table(V(iMoreno)$gender)
+modularity(iMoreno,V(iMoreno)$gender)
+
+
+data(Facebook)
+levels(factor(V(Facebook)$group))
+grp_num <- as.numeric(factor(V(Facebook)$group))
+modularity(Facebook,grp_num)
+
+
+#Community Detection Algorithms
 
 
 
-
-    
