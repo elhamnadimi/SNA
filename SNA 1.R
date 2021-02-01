@@ -657,25 +657,29 @@ max(hh$membership)
 
 #we can position vertices in the same community group together and 
 #make different communities stay further apart.
-LC_Grouped = iDHHS
-E(LC_Grouped)$weight = 1
+E(iDHHS)$weight = 1
 for(i in unique(membership(hh))) {
   GroupV = which(membership(hh) == i)
-  LC_Grouped = add_edges(LC_Grouped, combn(GroupV, 2), attr=list(weight=6))
+  iDHHS = add_edges(iDHHS, combn(GroupV, 2), attr=list(weight=6))
 }
+#add_edge(graph, from, to, rel = NULL, edge_aes = NULL, edge_data = NULL)
+#Gcombn>>enerate All Combinations Of N Elements
 
 set.seed(1234)
-LO = layout_with_fr(LC_Grouped)
-colors <- rainbow(max(membership(LC.gn.comm)))
+LO = layout_with_fr(iDHHS)
+colors <- rainbow(max(membership(hh)))
 par(mar=c(0,0,2,0))
 plot(hh, iDHHS, layout=LO,
      vertex.size = 6, 
-     vertex.color=colors[membership(LC.gn.comm)], 
+     vertex.color=colors[membership(hh)], 
      vertex.label = NA, edge.width = 1,edge.color="gray60")
 
-title(main="Giant component CIS Network.",sub="Girvan-Newman Algorithm", cex.main=2)
+title(main="Giant component Network.", cex.main=2)
 
 
+
+
+#combn(letters[1:4], 1)
 
 
 
