@@ -9,6 +9,8 @@ library(statnet)
 library(UserNetR)
 library(devtools)
 library(UserNetR)
+library(igraph)
+library(intergraph)
 
 data("Moreno")
 gender <- Moreno %v% "gender"
@@ -118,7 +120,6 @@ str(net1igraph)
 
 
 detach("package:igraph", unload=TRUE)
-library(statnet)
 netmat3 <- rbind(c("A","B"), c("A","C"), c("B","C"),c("B","D"), c("C","B"), c("E","C"))
 net.df <- data.frame(netmat3)
 net.df
@@ -260,8 +261,7 @@ gplot(Bali,gmode="graph",coord=mycoords2, vertex.cex=1.5,suppress.axes = FALSE, 
 
 detach(package:statnet)
 
-library(igraph)
-library(intergraph)
+
 iBali <- asIgraph(Bali)
 
 op <- par(mar=c(0,0,3,0),mfrow=c(1,3))
@@ -554,7 +554,6 @@ modularity(g1,V(g1)$grp_bad)
 
 
 
-library(intergraph)
 data(DHHS)
 iDHHS <- asIgraph(DHHS)
 iDHHS
@@ -579,6 +578,108 @@ modularity(Facebook,grp_num)
 
 
 #Community Detection Algorithms
+
+modularity(g1,V(g1)$grp_good)
+modularity(g1,V(g1)$grp_bad)
+
+#The main reason that this chapter uses igraph is that it includes support for many
+#if not most of the existing community detection approaches.
+
+#The basic workflow for conducting community detection in igraph
+#is to run one of the community detection functions on a network 
+#and store the results in a communities class object
+iMoreno
+cw <- cluster_walktrap(iMoreno)
+membership(cw)
+
+#Modularity is fairly high, suggesting that the walktrap algorithm
+#has done a good job at detecting subgroup structure.
+#The membership function reveals that six dif- ferent subgroups
+#have been identified
+
+plot(cw, iMoreno)
+
+
+#in this case, how does a walktrap solution 
+#compare to the specific agency of the nodes in the DHHS network?
+
+
+#we can position vertices in the same community group together and 
+#make different communities stay further apart.
+
+
+data(DHHS)
+iDHHS<-asIgraph(DHHS)
+
+iDHHS
+cww <- cluster_walktrap(iDHHS)
+modularity(cww)
+membership(cww)
+table(V(iDHHS)$agency,membership(cww))
+class(cww)
+
+
+
+rescale <- function(nchar,low,high) {
+  min_d <- min(nchar)
+  max_d <- max(nchar)
+  rscl <- ((high-low)*(nchar-min_d))/(max_d-min_d)+low
+  rscl
+}
+
+
+modules <- decompose.graph(iDHHS)
+out <- modules[order(sapply(modules, ecount), decreasing=T)]
+length(out)
+out
+
+
+vertexes <- character()
+data_frames <- list()
+for(i in 1:length(out)) {
+  vertexes[i] <- list(vertex.attributes(out[[i]])$vertex.names)
+  data_frames[[i]] <- get.data.frame(out[[i]])
+}
+
+
+rescale <- function(nchar,low,high) {
+  min_d <- min(nchar)
+  max_d <- max(nchar)
+  rscl <- ((high-low)*(nchar-min_d))/(max_d-min_d)+low
+  rscl
+}
+
+
+hh <- edge.betweenness.community(iDHHS, weights = NULL
+                                         ,directed = FALSE,bridges = TRUE)
+max(hh$membership)
+
+
+#we can position vertices in the same community group together and 
+#make different communities stay further apart.
+LC_Grouped = iDHHS
+E(LC_Grouped)$weight = 1
+for(i in unique(membership(hh))) {
+  GroupV = which(membership(hh) == i)
+  LC_Grouped = add_edges(LC_Grouped, combn(GroupV, 2), attr=list(weight=6))
+}
+
+set.seed(1234)
+LO = layout_with_fr(LC_Grouped)
+colors <- rainbow(max(membership(LC.gn.comm)))
+par(mar=c(0,0,2,0))
+plot(hh, iDHHS, layout=LO,
+     vertex.size = 6, 
+     vertex.color=colors[membership(LC.gn.comm)], 
+     vertex.label = NA, edge.width = 1,edge.color="gray60")
+
+title(main="Giant component CIS Network.",sub="Girvan-Newman Algorithm", cex.main=2)
+
+
+
+
+
+
 
 
 
